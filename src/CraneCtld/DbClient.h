@@ -86,7 +86,7 @@ class MongodbClient {
   void SelectAllQos(std::list<Qos>* qos_list);
 
   template <typename T>
-  bool UpdateEntityOne(const EntityType type, const std::string& opt,
+  bool UpdateEntityOne(EntityType type, const std::string& opt,
                        const std::string& name, const std::string& key,
                        const T& value) {
     using bsoncxx::builder::basic::kvp;
@@ -143,12 +143,8 @@ class MongodbClient {
   using sub_array = bsoncxx::builder::basic::sub_array;
   using sub_document = bsoncxx::builder::basic::sub_document;
 
-  static void PrintError_(const char* msg) {
-    CRANE_ERROR("MongodbError: {}", msg);
-  }
-
   template <typename V>
-  void DocumentAppendItem_(document* doc, const std::string& key,
+  void DocumentAppendItem_(document& doc, const std::string& key,
                            const V& value);
 
   template <typename... Ts, std::size_t... Is>
@@ -193,11 +189,11 @@ class MongodbClient {
 
 template <>
 void MongodbClient::DocumentAppendItem_<std::list<std::string>>(
-    document* doc, const std::string& key, const std::list<std::string>& value);
+    document& doc, const std::string& key, const std::list<std::string>& value);
 
 template <>
 void MongodbClient::DocumentAppendItem_<MongodbClient::PartitionQosMap>(
-    document* doc, const std::string& key,
+    document& doc, const std::string& key,
     const MongodbClient::PartitionQosMap& value);
 
 }  // namespace Ctld

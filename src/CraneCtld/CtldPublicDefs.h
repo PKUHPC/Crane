@@ -163,6 +163,7 @@ struct Qos {
 
 struct Account {
   bool deleted = false;
+  bool enable = true;
   std::string name;
   std::string description;
   std::list<std::string> users;

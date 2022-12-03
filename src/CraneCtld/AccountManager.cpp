@@ -555,6 +555,20 @@ bool AccountManager::CheckUserPermissionToPartition(
   return false;
 }
 
+bool AccountManager::CheckAccountEnableState(const std::string& name) {
+  util::read_lock_guard guard(m_rw_account_mutex_);
+  std::string p_str = name;
+  const Account* account;
+  do {
+    account = GetExistedAccountInfoNoLock_(p_str);
+    if (!account->enable) {
+      return false;
+    }
+    p_str = account->parent_account;
+  } while (!p_str.empty());
+  return true;
+}
+
 void AccountManager::InitDataMap_() {
   std::list<User> user_list;
   g_db_client->SelectAllUser(&user_list);

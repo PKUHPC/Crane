@@ -67,6 +67,8 @@ class AccountManager {
   bool CheckUserPermissionToPartition(const std::string& name,
                                       const std::string& partition);
 
+  bool CheckAccountEnableState(const std::string& name);
+
  private:
   void InitDataMap_();
 
