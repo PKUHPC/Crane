@@ -156,6 +156,7 @@ struct Qos {
   bool deleted = false;
   std::string name;
   std::string description;
+  uint32_t reference_count = 0;
   uint32_t priority;
   uint32_t max_jobs_per_user;
 };

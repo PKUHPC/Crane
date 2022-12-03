@@ -654,6 +654,7 @@ void MongodbClient::ViewToQos_(const bsoncxx::document::view& qos_view,
     qos->deleted = qos_view["deleted"].get_bool().value;
     qos->name = qos_view["name"].get_string().value;
     qos->description = qos_view["description"].get_string().value;
+    qos->reference_count = qos_view["reference_count"].get_int32().value;
     qos->priority = qos_view["priority"].get_int32().value;
     qos->max_jobs_per_user = qos_view["max_jobs_per_user"].get_int32().value;
   } catch (const bsoncxx::exception& e) {
@@ -663,10 +664,13 @@ void MongodbClient::ViewToQos_(const bsoncxx::document::view& qos_view,
 
 bsoncxx::builder::basic::document MongodbClient::QosToDocument_(
     const Ctld::Qos& qos) {
-  std::array<std::string, 5> fields{"deleted", "name", "description",
-                                    "priority", "max_jobs_per_user"};
-  std::tuple<bool, std::string, std::string, int, int> values{
-      false, qos.name, qos.description, qos.priority, qos.max_jobs_per_user};
+  std::array<std::string, 6> fields{"deleted",     "name",
+                                    "description", "reference_count",
+                                    "priority",    "max_jobs_per_user"};
+  std::tuple<bool, std::string, std::string, int, int, int> values{
+      false,           qos.name,
+      qos.description, qos.reference_count,
+      qos.priority,    qos.max_jobs_per_user};
 
   return DocumentConstructor_(fields, values);
 }
