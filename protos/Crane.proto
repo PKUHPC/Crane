@@ -228,8 +228,10 @@ message QueryTaskIdFromPortForwardReply{
 }
 
 message QueryJobsInPartitionRequest {
-  string partition = 1;
-  bool find_all = 2;
+  repeated string partitions = 1;
+  repeated uint32 task_ids = 2;
+  repeated TaskStatus task_status = 3;
+  repeated string task_names =4;
 }
 
 message QueryJobsInPartitionReply {
@@ -237,6 +239,8 @@ message QueryJobsInPartitionReply {
   repeated TaskStatus task_status = 2;
   repeated string allocated_craneds = 3;
   repeated uint32 task_ids = 4;
+  repeated string task_partitions=5;
+  repeated string task_names=6;
 }
 
 message QueryJobsInfoRequest {
@@ -343,12 +347,17 @@ message MigrateSshProcToCgroupReply {
 }
 
 message QueryClusterInfoRequest {
-
+  repeated string partitions=1;
+  repeated string nodes=2;
+  repeated CranedState states=3;
+  bool query_down_nodes=4;
+  bool query_responding_nodes=5;
 }
 
 message QueryClusterInfoReply {
   bool ok = 1;
   repeated PartitionCranedInfo partition_craned = 2;
+  string reason = 3;
 }
 
 // Todo: Divide service into two parts: one for Craned and one for Crun

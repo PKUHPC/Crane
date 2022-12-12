@@ -228,38 +228,63 @@ grpc::Status CraneCtldServiceImpl::QueryJobsInPartition(
   auto *state_list = response->mutable_task_status();
   auto *allocated_craned_list = response->mutable_allocated_craneds();
   auto *id_list = response->mutable_task_ids();
+  auto *partition_list = response->mutable_task_partitions();
+  auto *name_list = response->mutable_task_names();
 
-  if (request->find_all()) {
-    for (auto &task : task_list) {
-      auto *meta_it = meta_list->Add();
-      meta_it->CopyFrom(task.task_to_ctld);
+  std::unordered_set<uint32_t> req_task_id;
+  std::unordered_set<std::string> req_task_names;
+  std::unordered_set<int> req_task_status;
+  std::unordered_set<std::string> req_partitions;
 
-      auto *state_it = state_list->Add();
-      *state_it = task.status;
-
-      auto *node_list_it = allocated_craned_list->Add();
-      *node_list_it = task.allocated_craneds_regex;
-
-      auto *id_it = id_list->Add();
-      *id_it = task.task_id;
-    }
-  } else {
-    for (auto &task : task_list) {
-      if (task.partition_name != request->partition()) continue;
-      auto *meta_it = meta_list->Add();
-      meta_it->CopyFrom(task.task_to_ctld);
-
-      auto *state_it = state_list->Add();
-      *state_it = task.status;
-
-      auto *node_list_it = allocated_craned_list->Add();
-      *node_list_it = task.allocated_craneds_regex;
-
-      auto *id_it = id_list->Add();
-      *id_it = task.task_id;
-    }
+  if (!request->task_ids().empty()) {
+    std::copy(request->task_ids().begin(), request->task_ids().end(),
+              std::inserter(req_task_id, req_task_id.begin()));
+  }
+  if (!request->task_names().empty()) {
+    std::copy(request->task_names().begin(), request->task_names().end(),
+              std::inserter(req_task_names, req_task_names.begin()));
+  }
+  if (!request->task_status().empty()) {
+    std::copy(request->task_status().begin(), request->task_status().end(),
+              std::inserter(req_task_status, req_task_status.begin()));
+  }
+  if (!request->partitions().empty()) {
+    std::copy(request->partitions().begin(), request->partitions().end(),
+              std::inserter(req_partitions, req_partitions.begin()));
   }
 
+  for (auto &task : task_list) {
+    if (!request->task_ids().empty() &&
+        req_task_id.find(task.task_id) == req_task_id.end())
+      continue;
+    if (!request->task_names().empty() &&
+        req_task_names.find(task.name) == req_task_names.end())
+      continue;
+    if (!request->task_status().empty() &&
+        req_task_status.find(task.status) == req_task_status.end())
+      continue;
+    if (!request->partitions().empty() &&
+        req_partitions.find(task.partition_name) == req_partitions.end())
+      continue;
+
+    auto *meta_it = meta_list->Add();
+    meta_it->CopyFrom(task.task_to_ctld);
+
+    auto *state_it = state_list->Add();
+    *state_it = task.status;
+
+    auto *partition_it = partition_list->Add();
+    *partition_it = task.partition_name;
+
+    auto *node_list_it = allocated_craned_list->Add();
+    *node_list_it = task.allocated_craneds_regex;
+
+    auto *id_it = id_list->Add();
+    *id_it = task.task_id;
+
+    auto *name_it = name_list->Add();
+    *name_it = task.name;
+  }
   return grpc::Status::OK;
 }
 
@@ -646,7 +671,7 @@ grpc::Status CraneCtldServiceImpl::QueryClusterInfo(
     grpc::ServerContext *context,
     const crane::grpc::QueryClusterInfoRequest *request,
     crane::grpc::QueryClusterInfoReply *response) {
-  *response = g_meta_container->QueryClusterInfo();
+  *response = g_meta_container->QueryClusterInfo(*request);
   return grpc::Status::OK;
 }
 
