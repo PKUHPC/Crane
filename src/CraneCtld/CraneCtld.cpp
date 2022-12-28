@@ -31,7 +31,7 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 void ParseConfig(int argc, char** argv) {
-  cxxopts::Options options("craned");
+  cxxopts::Options options("cranectld");
 
   // clang-format off
   options.add_options()
@@ -240,8 +240,8 @@ void ParseConfig(int argc, char** argv) {
                           name);
             } else {
               CRANE_ERROR(
-                  "Find unknown node '{}' in partition '{}',pass it,please "
-                  "specify it in config file!",
+                  "Unknown node '{}' found in partition '{}'. It is ignored "
+                  "and should be contained in the configuration file.",
                   node, name);
             }
           }
