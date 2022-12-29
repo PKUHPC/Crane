@@ -30,8 +30,6 @@ struct Config {
   struct Node {
     uint32_t cpu;
     uint64_t memory_bytes;
-
-    std::string partition_name;
   };
 
   struct Partition {
@@ -256,7 +254,7 @@ struct TaskInCtld {
   uid_t Gid() const { return gid; }
 
   void SetAccount(std::string const& val) {
-    account = std::move(val);
+    account = val;
     persisted_part.set_account(val);
   }
   std::string const& Account() const { return account; }
